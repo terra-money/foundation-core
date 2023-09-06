@@ -1,0 +1,73 @@
+ignore:
+  - .git/
+  - .idea/
+  - transformations.yml
+
+inputs:
+  - id: chain_id
+    text: What is the chain ID? (eg. feather-1)
+    type: text
+  - id: chain_name
+    text: What is the chain name? (eg. feather-core)
+    type: text
+  - id: address_prefix
+    text: What is the address prefix? (eg. feath)
+    type: text
+  - id: bond_denom
+    text: What is the bond denom? (eg. stake)
+    type: text
+  - id: go_module
+    text: What is the Go module name? (typically github.com/<user>/<chain_name>)
+    type: text
+
+transformations:
+  - name: project path
+    type: replace
+    pattern: github.com/terra-money/feather-core
+    replacement: "{{ .go_module }}"
+    files:
+      - "*/**.go"
+      - "go.mod"
+      - "go.sum"
+      - "Makefile"
+
+  - name: package.json paths
+    type: replace
+    pattern: terra-money-feather-core
+    replacement: '{{ .go_module | replace "github.com/" "" | replace "/" "-" }}'
+    files:
+      - "vue/package.json"
+      - "vue/package-lock.json"
+
+  - name: chain name
+    type: replace
+    pattern: feather-core
+    replacement: "{{ .chain_name }}"
+    files:
+      - "README.md"
+      - "docs/static/openapi.yml"
+      - "config/config.json"
+
+  - name: chain ID
+    type: replace
+    # replaces chain_id in config.json
+    pattern: feather-1
+    replacement: "{{ .chain_id }}"
+    files:
+      - "config/config.json"
+
+  - name: address prefix
+    type: replace
+    # replaces address_prefix in config.json
+    pattern: feath
+    replacement: "{{ .address_prefix }}"
+    files:
+      - "config/config.json"
+
+  - name: bond denom
+    type: replace
+    # replaces bond_denom in config.json
+    pattern: stake
+    replacement: "{{ .bond_denom }}"
+    files:
+      - "config/config.json"
